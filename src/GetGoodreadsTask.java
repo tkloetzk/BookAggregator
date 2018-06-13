@@ -75,7 +75,7 @@ public class GetGoodreadsTask implements Runnable {
 	}
 
 	private void saveBook(String title, String average_rating, String ratings_count) {
-		book = new Book(title, Double.parseDouble(ratings_count), Double.parseDouble(average_rating));
+		//book = new Book(title, Double.parseDouble(ratings_count), Double.parseDouble(average_rating));
 	//	books.addBook(book);
 	}
 	

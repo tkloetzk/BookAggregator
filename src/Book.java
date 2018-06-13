@@ -1,16 +1,19 @@
+import java.nio.file.Path;
+
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 public class Book {
 
-	private String title;
+	private String title, path, category, ext;
 	private double ratings_count, average_rating;
 	
-	public Book(String title, double ratings_count, double average_rating) {
+	public Book(String title, String category, String path, String ext) {
 		this.title = title;
-		this.ratings_count = ratings_count;
-		this.average_rating = average_rating;
+		this.path = path;
+		this.category = category;
+		this.ext = ext;
 	}
+	
 	@XmlElement
 	public double getRatings_count() {
 		return ratings_count;
@@ -29,12 +32,27 @@ public class Book {
 		this.average_rating = average_rating;
 	}
 
-	@XmlElement
+	
 	public String getTitle() {
 		return title;
 	}
 	
 	public void setTitle(String title) {
 		this.title = title;
+	}
+	
+	public String getPath() {
+		return "/" + path + "/";
+	}
+	public String getFullPath() {
+		return "/" + path + "/" + title;
+	}
+
+	public String getExt() {
+		return "." + ext;
+	}
+	
+	public String getCategory() {
+		return category;
 	}
 }
