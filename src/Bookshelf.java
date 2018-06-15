@@ -1,0 +1,129 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+public class Bookshelf {
+	private List<Book> books;
+	private double mean_goodreads_votes, mean_amazon_votes, mean_total;
+	private int min_goodreads_votes, min_amazon_votes;
+	
+	public Bookshelf() {
+		this.books = new ArrayList<Book>();
+	}
+	
+	public Bookshelf(List<Book> bookshelf) {
+		this.books = bookshelf;
+	}
+
+	public Book getBook(int index) {
+		return books.get(index);
+	}
+	
+	public void removeBook(Book book) {
+		books.remove(book);
+	}
+	
+	public void removeBookByIndex(int index) {
+		books.remove(index);
+	}
+
+	public List<Book> getBooks() {
+		return books;
+	}
+
+	public void addBook(Book book) {
+		books.add(book);
+	}
+
+	public int getNumberOfBooks() {
+		return books.size();
+	}
+
+	public double getMeanGoodreadsVotes() {
+		return mean_goodreads_votes;
+	}
+
+	public void setMeanGoodreadsVotes(int mean_goodreads_votes) {
+		this.mean_goodreads_votes = mean_goodreads_votes;
+	}
+
+	public double getMeanAmazonVotes() {
+		return mean_amazon_votes;
+	}
+
+	public void setMeanAmazonVotes(int mean_amazon_votes) {
+		this.mean_amazon_votes = mean_amazon_votes;
+	}
+	
+	
+	// TODO This stuff probably shouldn't be in bookshelf class. Maybe a calculator class?
+	public List<Integer> getGoodreadsRatingsCountList() {
+		List<Integer> votes = new ArrayList<>();
+		for (Book book: books) {
+			votes.add(book.getGoodreadsRatingsCount());
+		}
+
+		Collections.sort(votes);
+		return votes;
+	}
+
+	public List<Integer> getAmazonRatingsCountList() {
+		List<Integer> votes = new ArrayList<>();
+		for (Book book: books) {
+			votes.add(book.getAmazonRatingsCount());
+		}
+
+		Collections.sort(votes);
+		return votes;
+	}
+	
+	public List<Integer> getTotalRatingsCountList() {
+		List<Integer> votes = new ArrayList<>();
+		votes.addAll(getGoodreadsRatingsCountList());
+		votes.addAll(getAmazonRatingsCountList()); 
+
+		Collections.sort(votes);
+		return votes;
+	}
+	public double getTotalMean() {
+		return mean_total;
+	}
+	
+	public void setTotalMean(int mean) {
+		this.mean_total = mean;
+	}
+	
+	public double getTotalMinVotes() {
+		return standardDeviation(getTotalRatingsCountList());
+
+	}
+	public double getGoodreadsMinVotes() { // TODO When GR and Am run together, just add ratings when book is added
+		return standardDeviation(getGoodreadsRatingsCountList());
+	}
+	
+	public double getAmazonMinVotes() { // TODO When GR and Am run together, just add ratings when book is added
+		return standardDeviation(getAmazonRatingsCountList());
+	}
+	
+	private double standardDeviation(List<Integer> votes) {
+		double sum = 0.0, standardDeviation = 0.0;
+
+        for(double num : votes) {
+            sum += num;
+        }
+
+        double mean = sum/10;
+
+        for(double num: votes) {
+            standardDeviation += Math.pow(num - mean, 2);
+        }
+
+        return Math.sqrt(standardDeviation/10);
+	}
+
+	@Override
+	public String toString() {
+		return "bookshelf [books=" + books.toString() + "]";
+	}
+}
