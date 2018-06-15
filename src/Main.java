@@ -20,11 +20,11 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 public class Main {
 
-	private static String goodreadsURL = "https://www.goodreads.com/book/title.xml?key=yXZIGleYDqexQC7C40PFg&title=";
+	private static final String goodreadsURL = "https://www.goodreads.com/book/title.xml?key=yXZIGleYDqexQC7C40PFg&title=";
 	public static boolean include_subdirectories = true; //TODO change to false once working
 	public String base_directory;
-	public static BookList failedBooks = new BookList();
-	public static BookList bookList;
+	public static Bookshelf failedBooks = new Bookshelf();
+	public static Bookshelf bookshelf;
 
 	public static void main(String[] args) throws IOException {
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
@@ -48,10 +48,10 @@ public class Main {
 							FilenameUtils.getExtension(fields.toAbsolutePath().toString())))
 					.collect(Collectors.toList());
 
-			bookList = new BookList(files);
+			bookshelf = new Bookshelf(files);
 
 
-		createGoodreadsThreads(bookList);
+		createGoodreadsThreads(bookshelf);
 
 		if (failedBooks.getNumberOfBooks() > 0) {
 			//System.out.println(failedBooks.toString());
@@ -70,11 +70,58 @@ public class Main {
 
 			System.out.println(failedBooks.toString());
 		}
+	
+		createAmazonThreads();
+		
+		int goodreadsVotes = 0, amazonVotes = 0;
+		for (var i = 0; i < bookshelf.getNumberOfBooks(); i++) {
+		//for (Book book: bookshelf) { // TODO Iterator
+			goodreadsVotes += bookshelf.getBook(i).getGoodreadsRatingsCount();
+			amazonVotes += bookshelf.getBook(i).getAmazonRatingsCount();
+		}
+		
+		bookshelf.setMeanGoodreadsVotes(goodreadsVotes/bookshelf.getNumberOfBooks());
+		bookshelf.setMeanAmazonVotes(amazonVotes/bookshelf.getNumberOfBooks());
+		bookshelf.setTotalMean((goodreadsVotes+amazonVotes)/bookshelf.getNumberOfBooks());
+		
+		System.out.println(" ...Finished");
+		
+		System.out.print("Do you want to export csv? ");
+		var exportCSV = (char)input.read(); 
+		if (Character.toLowerCase(exportCSV) == 'y') {
+			ExcelExporter excelExporter = new ExcelExporter(bookshelf);
+			excelExporter.export();
+		}
+		
+		// TODO Save to database
+//		System.out.println("Do you want to save to database?");
+//		var dbSave = (char)input.read(); 
+//		if (Character.toLowerCase(dbSave) == 'y') {
+//			dbSave();
+//		}
+//		
 		input.close();
 	}
 
-	private static void createGoodreadsThreads(BookList bookList) { // change to generic
-		Thread[] threads = new Thread[bookList.getNumberOfBooks()];
+	private static void createAmazonThreads() {
+		Thread[] threads = new Thread[bookshelf.getNumberOfBooks()];
+
+		for (int i = 0; i < threads.length; i++) {
+			threads[i] = new Thread(new GetAmazonTask(bookshelf.getBook(i)));
+			threads[i].start();
+		}
+		// wait for all the threads to finish
+		for (int i = 0; i < threads.length; i++) {
+			try {
+				threads[i].join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private static void createGoodreadsThreads(Bookshelf bookshelf) { 
+		Thread[] threads = new Thread[bookshelf.getNumberOfBooks()];
 		PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
 		cm.setMaxTotal(5); // increase max total connection to 20
 		cm.setDefaultMaxPerRoute(5); // increase max connection per route to 20
@@ -82,7 +129,7 @@ public class Main {
 		CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(cm).build();
 
 		for (int i = 0; i < threads.length; i++) {
-			String title = bookList.getBook(i).getTitle();
+			String title = bookshelf.getBook(i).getTitle();
 			HttpGet httpgetGoodreads;
 			try {
 				httpgetGoodreads = new HttpGet(goodreadsURL + URLEncoder.encode(title.replaceAll("/y+|y+/",""), "UTF-8"));
@@ -90,7 +137,7 @@ public class Main {
 				httpgetGoodreads = new HttpGet(goodreadsURL + title);
 			}
 			httpgetGoodreads.setConfig(localConfig);
-			threads[i] = new Thread(new GetGoodreadsTask(httpClient, httpgetGoodreads, bookList.getBook(i)));
+			threads[i] = new Thread(new GetGoodreadsTask(httpClient, httpgetGoodreads, bookshelf.getBook(i)));
 			threads[i].start();
 		}
 		// wait for all the threads to finish

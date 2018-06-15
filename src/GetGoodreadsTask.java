@@ -45,7 +45,6 @@ public class GetGoodreadsTask implements Runnable {
 				response.close();
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -60,15 +59,18 @@ public class GetGoodreadsTask implements Runnable {
 			Document doc = builder.parse(is);
 
 			String title = doc.getElementsByTagName("title").item(0).getTextContent();
+			
+			// TODO Might not be needed
 			if (!title.equalsIgnoreCase(book.getTitle())) {
 				book.setGoodreadsTitle(title);
 			}
+			
 			var average_rating = doc.getElementsByTagName("average_rating").item(0).getTextContent();
 			var ratings_count = doc.getElementsByTagName("ratings_count").item(0).getTextContent();
 			var isbn = doc.getElementsByTagName("isbn").item(0).getTextContent();
 			System.out.println(title + " has " + ratings_count + " ratings with an average rating of " + average_rating);
 			book.setGoodreadsAverageRating(Double.parseDouble(average_rating));
-			book.setGoodreadsRatingsCount(Double.parseDouble(ratings_count));
+			book.setGoodreadsRatingsCount(Integer.parseInt(ratings_count));
 			book.setISBN(isbn);
 		} catch (NullPointerException e) {
 			Main.failedBooks.addBook(book);

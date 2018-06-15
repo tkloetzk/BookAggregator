@@ -3,7 +3,8 @@ import javax.xml.bind.annotation.XmlElement;
 public class Book {
 
 	private String title, goodreadsTitle, path, category, ext, isbn;
-	private double goodreadsRatingsCount, goodreadsAverageRating;
+	private double goodreadsAverageRating, amazonAverageRating;
+	private int goodreadsRatingsCount, amazonRatingsCount;
 
 	public Book(String title, String category, String path, String ext) {
 		this.title = title;
@@ -37,14 +38,22 @@ public class Book {
 	}
 
 	@XmlElement
-	public double getGoodreadsRatingsCount() {
+	public int getGoodreadsRatingsCount() {
 		return goodreadsRatingsCount;
 	}
 
-	public void setGoodreadsRatingsCount(double ratings_count) {
+	public void setGoodreadsRatingsCount(int ratings_count) {
 		this.goodreadsRatingsCount = ratings_count;
 	}
 
+	public int getAmazonRatingsCount() {
+		return amazonRatingsCount;
+	}
+
+	public void setAmazonRatingsCount(int ratings_count) {
+		this.amazonRatingsCount = ratings_count;
+	}
+	
 	public String getCategory() {
 		return category;
 	}
@@ -69,5 +78,26 @@ public class Book {
 	public void setGoodreadsAverageRating(double average_rating) {
 		this.goodreadsAverageRating = average_rating;
 	}
+	
+	public double getAmazonAverageRating() {
+		return goodreadsAverageRating;
+	}
 
+	public void setAmazonAverageRating(double average_rating) {
+		this.amazonAverageRating = average_rating;
+	}
+	
+	public int getTotalReviews() {
+		return getGoodreadsRatingsCount() + getAmazonRatingsCount();
+	}
+	
+	public double getTotalAverageRating() {
+		return (getGoodreadsAverageRating() + getAmazonAverageRating()) / 2;
+	}
+	
+	public double getTotalWeightedAverageRating() {
+		return ((getGoodreadsRatingsCount() * getGoodreadsAverageRating()) + 
+				(getAmazonRatingsCount() * getAmazonAverageRating())) / 
+				getTotalReviews();
+	}
 }
