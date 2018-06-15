@@ -46,11 +46,18 @@ public class ExcelExporter {
         	row.createCell(8).setCellValue(
         			getAjustedRating(
         					book.getTotalReviews(),
+<<<<<<< HEAD
         					book.getTotalWeightedAverageRating(), // or regular average?
         					bookshelf.getTotalMean(),
         					bookshelf.getTotalMinVotes()
         					));
         	System.out.println(book.getTitle() + " has avg of " + book.getTotalAverageRating() + " with weight average of " + book.getTotalWeightedAverageRating());
+=======
+        					book.getTotalAverageRating(),
+        					bookshelf.getTotalMean(),
+        					bookshelf.getTotalMinVotes()
+        					));
+>>>>>>> 74117ab59c3107a48dc939322c93da9c32c0f660
     	}
     	
 //        for (Book book: bookshelf) {
