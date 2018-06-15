@@ -1,6 +1,4 @@
-import java.io.IOException;
 import java.io.StringReader;
-import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -19,14 +17,13 @@ public class GetGoodreadsTask implements Runnable {
 	private final CloseableHttpClient httpClient;
 	private final HttpContext context;
 	private final HttpGet httpget;
-	private final String bookTitle;
 	private Book book;
-	
-	public GetGoodreadsTask(CloseableHttpClient httpClient, HttpGet httpget, String title) {
+
+	public GetGoodreadsTask(CloseableHttpClient httpClient, HttpGet httpget, Book book) {
 		this.httpClient = httpClient;
 		this.context = HttpClientContext.create();
 		this.httpget = httpget;
-		this.bookTitle = title;
+		this.book = book;
 	}
 
 	@Override
@@ -63,24 +60,21 @@ public class GetGoodreadsTask implements Runnable {
 			Document doc = builder.parse(is);
 
 			String title = doc.getElementsByTagName("title").item(0).getTextContent();
-			String average_rating = doc.getElementsByTagName("average_rating").item(0).getTextContent();
-			String ratings_count = doc.getElementsByTagName("ratings_count").item(0).getTextContent();
-			//System.out.println(title + " has " + ratings_count + " ratings with an average rating of " + average_rating);
-			saveBook(title, average_rating, ratings_count);
+			if (!title.equalsIgnoreCase(book.getTitle())) {
+				book.setGoodreadsTitle(title);
+			}
+			var average_rating = doc.getElementsByTagName("average_rating").item(0).getTextContent();
+			var ratings_count = doc.getElementsByTagName("ratings_count").item(0).getTextContent();
+			var isbn = doc.getElementsByTagName("isbn").item(0).getTextContent();
+			System.out.println(title + " has " + ratings_count + " ratings with an average rating of " + average_rating);
+			book.setGoodreadsAverageRating(Double.parseDouble(average_rating));
+			book.setGoodreadsRatingsCount(Double.parseDouble(ratings_count));
+			book.setISBN(isbn);
 		} catch (NullPointerException e) {
-			System.out.println("Failed to get title: " + bookTitle);
+			Main.failedBooks.addBook(book);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	private void saveBook(String title, String average_rating, String ratings_count) {
-		//book = new Book(title, Double.parseDouble(ratings_count), Double.parseDouble(average_rating));
-	//	books.addBook(book);
-	}
-	
-	public Book getBook() {
-		return book;
 	}
 
 }

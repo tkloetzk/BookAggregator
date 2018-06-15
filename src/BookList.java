@@ -3,8 +3,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BookList {
-
-	private Book[] Book;
 	private List<Book> books;
 	
 	public BookList() {
@@ -41,7 +39,6 @@ public class BookList {
 
 	@Override
 	public String toString() {
-		return "BookList [Book=" + Arrays.toString(Book) + ", books=" + books + "]";
+		return "BookList [books=" + books.toString() + "]";
 	}
-
 }
