@@ -68,13 +68,21 @@ public class GetGoodreadsTask implements Runnable {
 			var average_rating = doc.getElementsByTagName("average_rating").item(0).getTextContent();
 			var ratings_count = doc.getElementsByTagName("ratings_count").item(0).getTextContent();
 			var isbn = doc.getElementsByTagName("isbn").item(0).getTextContent();
-			if (isbn == null || isbn.equals("")) {
-				isbn = doc.getElementsByTagName("asin").item(0).getTextContent();
+			var isbn13 = doc.getElementsByTagName("isbn13").item(0).getTextContent();
+			var asin = doc.getElementsByTagName("asin").item(0).getTextContent();
+			if (isbn13 != null && !isbn13.equals("")) {
+				book.setISBN(isbn13);
+			} else if (isbn != null && !isbn.equals("")) {
+				book.setISBN(isbn);
+			} else if (asin != null && !asin.equals("")) {
+				book.setISBN(asin);
+			} else {
+				System.out.println("Could not get ISBN of " + book.getTitle());
+				throw new NullPointerException();
 			}
-			System.out.println(title + " has " + ratings_count + " ratings with an average rating of " + average_rating);
+		//	System.out.println(title + " has " + ratings_count + " ratings with an average rating of " + average_rating);
 			book.setGoodreadsAverageRating(Double.parseDouble(average_rating));
 			book.setGoodreadsRatingsCount(Integer.parseInt(ratings_count));
-			book.setISBN(isbn);
 		} catch (NullPointerException e) {
 			Main.failedBooks.addBook(book);
 		} catch (Exception e) {

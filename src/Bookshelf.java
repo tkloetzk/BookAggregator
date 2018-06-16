@@ -7,6 +7,7 @@ public class Bookshelf {
 	private List<Book> books;
 	private double mean_goodreads_votes, mean_amazon_votes, mean_total;
 	private int min_goodreads_votes, min_amazon_votes;
+	private final double percentage = .25;
 	
 	public Bookshelf() {
 		this.books = new ArrayList<Book>();
@@ -95,31 +96,31 @@ public class Bookshelf {
 	}
 	
 	public double getTotalMinVotes() {
-		return standardDeviation(getTotalRatingsCountList());
+		return trimmean(getTotalRatingsCountList());
 
 	}
 	public double getGoodreadsMinVotes() { // TODO When GR and Am run together, just add ratings when book is added
-		return standardDeviation(getGoodreadsRatingsCountList());
+		return trimmean(getGoodreadsRatingsCountList());
 	}
 	
 	public double getAmazonMinVotes() { // TODO When GR and Am run together, just add ratings when book is added
-		return standardDeviation(getAmazonRatingsCountList());
+		return trimmean(getAmazonRatingsCountList());
 	}
 	
-	private double standardDeviation(List<Integer> votes) {
-		double sum = 0.0, standardDeviation = 0.0;
-
-        for(double num : votes) {
-            sum += num;
-        }
-
-        double mean = sum/10;
-
-        for(double num: votes) {
-            standardDeviation += Math.pow(num - mean, 2);
-        }
-
-        return Math.sqrt(standardDeviation/10);
+	private double trimmean(List<Integer> votes) {
+		Collections.sort(votes);
+		
+		double removeAmount = (votes.size() * percentage) / 2;
+		int roundDownNearedMultipleTwo = (int) (removeAmount >= 0 ? (removeAmount / 2) * 2 : ((removeAmount - 2 + 1) / 2) * 2);
+		return getMean(votes.subList(roundDownNearedMultipleTwo, votes.size() - roundDownNearedMultipleTwo));
+	}
+	
+	private double getMean(List<Integer> array) {
+		double sum = 0;
+	    for (int i = 0; i < array.size(); i++) {
+	        sum += array.get(i);
+	    }
+	    return sum / array.size();
 	}
 
 	@Override

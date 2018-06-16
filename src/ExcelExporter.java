@@ -1,5 +1,7 @@
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -15,7 +17,7 @@ public class ExcelExporter {
 		this.bookshelf = bookshelf;
 	}
 	public void export() throws IOException {
-		String[] headers =  {"Title", "Category", "GR Rating", "GR Review Count", "GR Adjusted Rating", "Am Rating", "Am Review Count", "Am Adjusted Rating", "Overall Adjusted Rating"};
+		String[] headers =  {"Title", "Category", "GR Rating", "GR Review Count", "GR Adjusted Rating"/*, "Am Rating", "Am Review Count", "Am Adjusted Rating", "Overall Adjusted Rating"*/};
 		
 		//Blank workbook
 		Workbook wb = new HSSFWorkbook();
@@ -30,6 +32,22 @@ public class ExcelExporter {
 //    	for (var i = 0; i < headers.length; i++) {
 //    		row.createCell(i).setCellValue(headers[i]);
 //    	}
+
+    	Collections.sort(bookshelf.getBooks(), new Comparator<Book>() {
+    	    public int compare(Book v1, Book v2) {
+    	        return getAjustedRating(
+    					v2.getGoodreadsRatingsCount(), 
+    					v2.getGoodreadsAverageRating(), 
+    					bookshelf.getMeanGoodreadsVotes(),
+    					bookshelf.getGoodreadsMinVotes()).compareTo(getAjustedRating(
+            					v1.getGoodreadsRatingsCount(), 
+            					v1.getGoodreadsAverageRating(), 
+            					bookshelf.getMeanGoodreadsVotes(),
+            					bookshelf.getGoodreadsMinVotes()));
+    	    }
+    	});
+
+    	
     	for (var i = 1; i < bookshelf.getNumberOfBooks(); i++) {
     		Row row = sheet.createRow(rownum++);
     		Book book = bookshelf.getBook(i);
@@ -43,21 +61,21 @@ public class ExcelExporter {
         					book.getGoodreadsAverageRating(), 
         					bookshelf.getMeanGoodreadsVotes(),
         					bookshelf.getGoodreadsMinVotes()));
-        	row.createCell(5).setCellValue(book.getAmazonAverageRating());
-        	row.createCell(6).setCellValue(book.getAmazonRatingsCount());
-        	row.createCell(7).setCellValue(
-        			getAjustedRating(
-        					book.getAmazonRatingsCount(), 
-        					book.getAmazonAverageRating(), 
-        					bookshelf.getMeanAmazonVotes(),
-        					bookshelf.getAmazonMinVotes()));
-        	row.createCell(8).setCellValue(
-        			getAjustedRating(
-        					book.getTotalReviews(),
-        					book.getTotalWeightedAverageRating(), // or regular average?
-        					bookshelf.getTotalMean(),
-        					bookshelf.getTotalMinVotes()
-        					));
+//        	row.createCell(5).setCellValue(book.getAmazonAverageRating());
+//        	row.createCell(6).setCellValue(book.getAmazonRatingsCount());
+//        	row.createCell(7).setCellValue(
+//        			getAjustedRating(
+//        					book.getAmazonRatingsCount(), 
+//        					book.getAmazonAverageRating(), 
+//        					bookshelf.getMeanAmazonVotes(),
+//        					bookshelf.getAmazonMinVotes()));
+//        	row.createCell(8).setCellValue(
+//        			getAjustedRating(
+//        					book.getTotalReviews(),
+//        					book.getTotalWeightedAverageRating(), // or regular average?
+//        					bookshelf.getTotalMean(),
+//        					bookshelf.getTotalMinVotes()
+//        					));
         	System.out.println(book.getTitle() + " has avg of " + book.getTotalAverageRating() + " with weight average of " + book.getTotalWeightedAverageRating());
 
     	}
@@ -90,8 +108,8 @@ public class ExcelExporter {
 //	m = minimum votes required to be listed in the Top 250 (currently 25,000)
 //	C = the mean vote across the whole report.
 	private Double getAjustedRating(int ratingsCount, double averageRating, double meanVote, double minVotes) {
-		double rating = averageRating * 2;
-		return (ratingsCount / (ratingsCount + minVotes)) * rating + (minVotes / (ratingsCount + minVotes)) * meanVote;
+		//double rating = averageRating * 2;
+		return (ratingsCount / (ratingsCount + minVotes)) * averageRating + (minVotes / (ratingsCount + minVotes)) * meanVote;
 
 	}
 

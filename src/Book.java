@@ -76,15 +76,15 @@ public class Book {
 	}
 
 	public void setGoodreadsAverageRating(double average_rating) {
-		this.goodreadsAverageRating = average_rating;
+		this.goodreadsAverageRating = average_rating * 2;
 	}
 	
 	public double getAmazonAverageRating() {
-		return goodreadsAverageRating;
+		return amazonAverageRating;
 	}
 
 	public void setAmazonAverageRating(double average_rating) {
-		this.amazonAverageRating = average_rating;
+		this.amazonAverageRating = average_rating * 2;
 	}
 	
 	public int getTotalReviews() {

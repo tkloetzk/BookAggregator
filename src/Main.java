@@ -58,41 +58,37 @@ public class Main {
 
 			System.out.print(failedBooks.getNumberOfBooks() + " failed. Do you want to edit the filenames and try again? ");
 			var editFiles = (char)input.read(); 
-			var editFailedFiles = false;
 			if (Character.toLowerCase(editFiles) == 'y') {
-				editFailedFiles = true;
-			}
-			if (editFailedFiles) {
 				editFailedFiles();
+				createGoodreadsThreads(failedBooks);
 			}
-
-			createGoodreadsThreads(failedBooks);
-
-			System.out.println(failedBooks.toString());
 		}
 	
-		createAmazonThreads();
+	//	createAmazonThreads();
 		
 		// TODO Mean and min are off. Too big
-		int goodreadsVotes = 0, amazonVotes = 0;
+		int goodreadsVotes = 0, amazonVotes = 0, total = 0;
 		for (var i = 0; i < bookshelf.getNumberOfBooks(); i++) {
 		//for (Book book: bookshelf) { // TODO Iterator
-			goodreadsVotes += bookshelf.getBook(i).getGoodreadsRatingsCount();
-			amazonVotes += bookshelf.getBook(i).getAmazonRatingsCount();
+			goodreadsVotes += bookshelf.getBook(i).getGoodreadsAverageRating();
+		//	amazonVotes += bookshelf.getBook(i).getAmazonAverageRating();
+		//	total += goodreadsVotes+amazonVotes;
+			total += goodreadsVotes;
 		}
 		
 		bookshelf.setMeanGoodreadsVotes(goodreadsVotes/bookshelf.getNumberOfBooks());
-		bookshelf.setMeanAmazonVotes(amazonVotes/bookshelf.getNumberOfBooks());
-		bookshelf.setTotalMean((goodreadsVotes+amazonVotes)/bookshelf.getNumberOfBooks());
+	//	bookshelf.setMeanAmazonVotes(amazonVotes/bookshelf.getNumberOfBooks());
+	//	bookshelf.setTotalMean((total/2)/bookshelf.getNumberOfBooks());
+		bookshelf.setTotalMean((total)/bookshelf.getNumberOfBooks());
 		
 		System.out.println(" ...Finished");
 		
-		System.out.print("Do you want to export csv? ");
-		var exportCSV = (char)input.read(); 
-		if (Character.toLowerCase(exportCSV) == 'y') {
+//		System.out.print("Do you want to export csv? ");
+//		var exportCSV = (char)input.read(); 
+//		if (Character.toLowerCase(exportCSV) == 'y') {
 			ExcelExporter excelExporter = new ExcelExporter(bookshelf);
 			excelExporter.export();
-		}
+	//	}
 		
 		// TODO Save to database
 //		System.out.println("Do you want to save to database?");
@@ -161,7 +157,7 @@ public class Main {
 					renameFile(failedBook, renamedTitle);
 				}
 		}
-		input.close();
+		//input.close();
 	
 	}
 
