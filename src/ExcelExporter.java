@@ -1,9 +1,11 @@
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelExporter {
@@ -13,16 +15,22 @@ public class ExcelExporter {
 		this.bookshelf = bookshelf;
 	}
 	public void export() throws IOException {
-		String[] headers =  {"Title", "Category", "GR Rating", "GR Review Count", "Am Rating", "Am Review Count"};
+		String[] headers =  {"Title", "Category", "GR Rating", "GR Review Count", "GR Adjusted Rating", "Am Rating", "Am Review Count", "Am Adjusted Rating", "Overall Adjusted Rating"};
 		
 		//Blank workbook
-        XSSFWorkbook workbook = new XSSFWorkbook();
-         
-        //Create a blank sheet
-        XSSFSheet sheet = workbook.createSheet("Book Ratings");
+		Workbook wb = new HSSFWorkbook();
+	    //Workbook wb = new XSSFWorkbook();
+	    CreationHelper createHelper = wb.getCreationHelper();
+	    Sheet sheet = wb.createSheet("new sheet");
+
+        XSSFWorkbook s = new XSSFWorkbook();
 
     	var rownum = 0;
-    	for (var i = 0; i < bookshelf.getNumberOfBooks(); i++) {
+//		Row row = sheet.createRow(rownum);
+//    	for (var i = 0; i < headers.length; i++) {
+//    		row.createCell(i).setCellValue(headers[i]);
+//    	}
+    	for (var i = 1; i < bookshelf.getNumberOfBooks(); i++) {
     		Row row = sheet.createRow(rownum++);
     		Book book = bookshelf.getBook(i);
         	row.createCell(0).setCellValue(book.getTitle());
@@ -46,18 +54,12 @@ public class ExcelExporter {
         	row.createCell(8).setCellValue(
         			getAjustedRating(
         					book.getTotalReviews(),
-<<<<<<< HEAD
         					book.getTotalWeightedAverageRating(), // or regular average?
         					bookshelf.getTotalMean(),
         					bookshelf.getTotalMinVotes()
         					));
         	System.out.println(book.getTitle() + " has avg of " + book.getTotalAverageRating() + " with weight average of " + book.getTotalWeightedAverageRating());
-=======
-        					book.getTotalAverageRating(),
-        					bookshelf.getTotalMean(),
-        					bookshelf.getTotalMinVotes()
-        					));
->>>>>>> 74117ab59c3107a48dc939322c93da9c32c0f660
+
     	}
     	
 //        for (Book book: bookshelf) {
@@ -65,8 +67,8 @@ public class ExcelExporter {
     	  try
           {
               //Write the workbook in file system
-              FileOutputStream out = new FileOutputStream(new File("BookRatings.xlsx"));
-              workbook.write(out);
+              FileOutputStream out = new FileOutputStream("BookRatings.xls");
+              wb.write(out);
               out.close();
               System.out.println("BookRatings.xlsx written successfully on disk.");
           }
@@ -75,7 +77,7 @@ public class ExcelExporter {
               e.printStackTrace();
           }
     	  finally {
-    		  workbook.close();
+    		  wb.close();
     	  }
 	}
 	

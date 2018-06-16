@@ -68,6 +68,9 @@ public class GetGoodreadsTask implements Runnable {
 			var average_rating = doc.getElementsByTagName("average_rating").item(0).getTextContent();
 			var ratings_count = doc.getElementsByTagName("ratings_count").item(0).getTextContent();
 			var isbn = doc.getElementsByTagName("isbn").item(0).getTextContent();
+			if (isbn == null || isbn.equals("")) {
+				isbn = doc.getElementsByTagName("asin").item(0).getTextContent();
+			}
 			System.out.println(title + " has " + ratings_count + " ratings with an average rating of " + average_rating);
 			book.setGoodreadsAverageRating(Double.parseDouble(average_rating));
 			book.setGoodreadsRatingsCount(Integer.parseInt(ratings_count));

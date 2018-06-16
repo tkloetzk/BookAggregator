@@ -73,6 +73,7 @@ public class Main {
 	
 		createAmazonThreads();
 		
+		// TODO Mean and min are off. Too big
 		int goodreadsVotes = 0, amazonVotes = 0;
 		for (var i = 0; i < bookshelf.getNumberOfBooks(); i++) {
 		//for (Book book: bookshelf) { // TODO Iterator
