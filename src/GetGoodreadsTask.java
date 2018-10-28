@@ -70,6 +70,9 @@ public class GetGoodreadsTask implements Runnable {
 			var isbn = doc.getElementsByTagName("isbn").item(0).getTextContent();
 			var isbn13 = doc.getElementsByTagName("isbn13").item(0).getTextContent();
 			var asin = doc.getElementsByTagName("asin").item(0).getTextContent();
+			if (book.getTitle() == null) {
+				book.setTitle(doc.getElementsByTagName("title").item(0).getTextContent());
+			}
 			if (isbn13 != null && !isbn13.equals("")) {
 				book.setISBN(isbn13);
 			} else if (isbn != null && !isbn.equals("")) {

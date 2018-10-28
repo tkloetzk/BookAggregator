@@ -2,10 +2,13 @@ import javax.xml.bind.annotation.XmlElement;
 
 public class Book {
 
-	private String title, goodreadsTitle, path, category, ext, isbn;
+	private String title, goodreadsTitle, path, category, ext, isbn, course, school;
 	private double goodreadsAverageRating, amazonAverageRating;
 	private int goodreadsRatingsCount, amazonRatingsCount;
 
+	public Book() {
+		
+	}
 	public Book(String title, String category, String path, String ext) {
 		this.title = title;
 		this.path = path;
@@ -99,5 +102,12 @@ public class Book {
 		return ((getGoodreadsRatingsCount() * getGoodreadsAverageRating()) + 
 				(getAmazonRatingsCount() * getAmazonAverageRating())) / 
 				getTotalReviews();
+	}
+	public void setCourse(String course) {
+		this.course = course;
+	}
+	
+	public void setSchool(String school) {
+		this.school = school;
 	}
 }
