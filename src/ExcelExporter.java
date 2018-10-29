@@ -28,10 +28,10 @@ public class ExcelExporter {
         XSSFWorkbook s = new XSSFWorkbook();
 
     	var rownum = 0;
-//		Row row = sheet.createRow(rownum);
-//    	for (var i = 0; i < headers.length; i++) {
-//    		row.createCell(i).setCellValue(headers[i]);
-//    	}
+		Row row = sheet.createRow(rownum);
+    	for (var i = 0; i < headers.length; i++) {
+    		row.createCell(i).setCellValue(headers[i]);
+    	}
 
     	Collections.sort(bookshelf.getBooks(), new Comparator<Book>() {
     	    public int compare(Book v1, Book v2) {
@@ -48,14 +48,14 @@ public class ExcelExporter {
     	});
 
     	
-    	for (var i = 1; i < bookshelf.getNumberOfBooks(); i++) {
-    		Row row = sheet.createRow(rownum++);
+    	for (var i = 0; i < bookshelf.getNumberOfBooks(); i++) {
+    		Row row1 = sheet.createRow(rownum++);
     		Book book = bookshelf.getBook(i);
-        	row.createCell(0).setCellValue(book.getTitle());
-        	row.createCell(1).setCellValue(book.getCategory());
-        	row.createCell(2).setCellValue(book.getGoodreadsAverageRating());
-        	row.createCell(3).setCellValue(book.getGoodreadsRatingsCount());
-        	row.createCell(4).setCellValue(
+        	row1.createCell(0).setCellValue(book.getTitle());
+        	row1.createCell(1).setCellValue(book.getCategory());
+        	row1.createCell(2).setCellValue(book.getGoodreadsAverageRating());
+        	row1.createCell(3).setCellValue(book.getGoodreadsRatingsCount());
+        	row1.createCell(4).setCellValue(
         			getAjustedRating(
         					book.getGoodreadsRatingsCount(), 
         					book.getGoodreadsAverageRating(), 

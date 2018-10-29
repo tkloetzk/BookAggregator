@@ -83,16 +83,19 @@ public class Main {
 						isbnBook.setISBN((String) getCellValue(nextCell));
 						break;
 					case 1:
-						isbnBook.setCourse((String) getCellValue(nextCell));
+						isbnBook.setCategory((String) getCellValue(nextCell));
 						break;
 					case 2:
+						isbnBook.setCourse((String) getCellValue(nextCell));
+						break;
+					case 3:
 						isbnBook.setSchool((String) getCellValue(nextCell));
 						break;
 					default:
 						break;
 					}
 				}
-				if (isbnBook != null) {
+				if (!(isbnBook == null || (isbnBook.getTitle() == null && isbnBook.getISBN() == null))) {
 					files.add(isbnBook);
 				
 				}
@@ -112,6 +115,7 @@ public class Main {
 		bookshelf = new Bookshelf(files);
 
 		createGoodreadsThreads(bookshelf);
+		//createAmazonThreads(bookshelf);
 
 		if (failedBooks.getNumberOfBooks() > 0) {
 			// System.out.println(failedBooks.toString());
@@ -122,24 +126,23 @@ public class Main {
 			if (Character.toLowerCase(editFiles) == 'y') {
 				editFailedFiles();
 				createGoodreadsThreads(failedBooks);
+				//createAmazonThreads(failedBooks);
 			}
 		}
-
-		// createAmazonThreads();
 
 		// TODO Mean and min are off. Too big
 		int goodreadsVotes = 0, amazonVotes = 0, total = 0;
 		for (var i = 0; i < bookshelf.getNumberOfBooks(); i++) {
 			// for (Book book: bookshelf) { // TODO Iterator
 			goodreadsVotes += bookshelf.getBook(i).getGoodreadsAverageRating();
-			// amazonVotes += bookshelf.getBook(i).getAmazonAverageRating();
-			// total += goodreadsVotes+amazonVotes;
+			//amazonVotes += bookshelf.getBook(i).getAmazonAverageRating();
+			//total += goodreadsVotes+amazonVotes;
 			total += goodreadsVotes;
 		}
 
 		bookshelf.setMeanGoodreadsVotes(goodreadsVotes / bookshelf.getNumberOfBooks());
-		// bookshelf.setMeanAmazonVotes(amazonVotes/bookshelf.getNumberOfBooks());
-		// bookshelf.setTotalMean((total/2)/bookshelf.getNumberOfBooks());
+		//bookshelf.setMeanAmazonVotes(amazonVotes/bookshelf.getNumberOfBooks());
+		//bookshelf.setTotalMean((total/2)/bookshelf.getNumberOfBooks());
 		bookshelf.setTotalMean((total) / bookshelf.getNumberOfBooks());
 
 		System.out.println(" ...Finished");
@@ -177,7 +180,7 @@ public class Main {
 		return null;
 	}
 
-	private static void createAmazonThreads() {
+	private static void createAmazonThreads(Bookshelf bookshelf) {
 		Thread[] threads = new Thread[bookshelf.getNumberOfBooks()];
 
 		for (int i = 0; i < threads.length; i++) {

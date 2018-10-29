@@ -110,4 +110,7 @@ public class Book {
 	public void setSchool(String school) {
 		this.school = school;
 	}
+	public void setCategory(String category) {
+		this.category = category;
+	}
 }
