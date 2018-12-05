@@ -289,6 +289,11 @@ public class Main {
 
         String name = (String) book.get("NAME");   
         System.out.println(name);
+        
+       // Add to amazon bookshelf or find it right now?
+        //Create amazon book POJO, then update it
+        Book book = bookshelf.getBookByISBN(isbn);
+        
     }
     
 	private static void editFailedFiles() throws IOException {

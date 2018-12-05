@@ -27,6 +27,16 @@ public class Bookshelf {
 		return books.get(index);
 	}
 	
+	public void getBookByISBN(String isbn, AmazonBook amazonBook) {
+		books.stream().map(book -> {
+			if (book.getISBN().equals(isbn)) {
+				book.setAmazonAverageRating(1);
+				book.setAmazonRatingsCount(1);
+				return book;
+			}
+			return book;
+		});
+	}
 	public void removeBook(Book book) {
 		books.remove(book);
 	}
