@@ -5,6 +5,7 @@ import java.util.List;
 
 public class Bookshelf {
 	private List<Book> books;
+	private String title;
 	private double mean_goodreads_votes, mean_amazon_votes, mean_total;
 	private int min_goodreads_votes, min_amazon_votes;
 	private final double percentage = .25;
@@ -13,8 +14,13 @@ public class Bookshelf {
 		this.books = new ArrayList<Book>();
 	}
 	
-	public Bookshelf(List<Book> bookshelf) {
+	public Bookshelf(List<Book> bookshelf, String title) {
 		this.books = bookshelf;
+		this.title = title;
+	}
+	
+	public String getTitle() {
+		return title;
 	}
 
 	public Book getBook(int index) {

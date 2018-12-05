@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -26,11 +28,16 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 public class Main {
 
 	private static final String goodreadsURL = "https://www.goodreads.com/book/title.xml?key=yXZIGleYDqexQC7C40PFg&title=";
 	public static boolean include_subdirectories = true; // TODO change to false once working
-	public String base_directory;
+	public static String base_directory, title;
 	public static Bookshelf failedBooks = new Bookshelf();
 	public static Bookshelf bookshelf;
 	public static List<Book> files;
@@ -42,10 +49,12 @@ public class Main {
 		System.out.println("Enter 1 for ISBN List or 2 for pdf directors.");
 		String answer = input.readLine();
 
+		//TODO: Save file as directory name
 		if (String.valueOf(answer).equals("2")) {
 			isbnsFromList = false;
 			System.out.print("Base directory name: "); //Move this out since both could require base folder
 			String base_folder = input.readLine();
+			title = base_folder;
 			files = Files.walk(Paths.get("/Users/Tucker/Documents/" +
 					base_folder), FileVisitOption.FOLLOW_LINKS)
 					.filter(p -> (p.toString().endsWith(".pdf") || p.toString().endsWith(".epub")
@@ -61,7 +70,9 @@ public class Main {
 			isbnsFromList = true;
 			// Location of base folder
 			System.out.print("Excel name: ");
-			String excelFilePath = "/Users/Tucker/Downloads/" + input.readLine() + ".xlsx";
+			String filename = input.readLine();
+			title = filename;
+			String excelFilePath = "/Users/Tucker/Downloads/" + filename + ".xlsx";
 			FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
 			List<Book> listBooks = new ArrayList<>();
 	
@@ -112,9 +123,10 @@ public class Main {
 		// include_subdirectories = true;
 		// }
 
-		bookshelf = new Bookshelf(files);
+		bookshelf = new Bookshelf(files, title);
 
-		createGoodreadsThreads(bookshelf);
+		//createGoodreadsThreads(bookshelf);
+		readAmazonFromDataJSON(bookshelf);
 		//createAmazonThreads(bookshelf);
 
 		if (failedBooks.getNumberOfBooks() > 0) {
@@ -126,6 +138,7 @@ public class Main {
 			if (Character.toLowerCase(editFiles) == 'y') {
 				editFailedFiles();
 				createGoodreadsThreads(failedBooks);
+				readAmazonFromDataJSON(failedBooks);
 				//createAmazonThreads(failedBooks);
 			}
 		}
@@ -207,10 +220,10 @@ public class Main {
 
 		for (int i = 0; i < threads.length; i++) {
 			String title;
-			if (isbnsFromList) {
-				title = bookshelf.getBook(i).getISBN();
-			} else {
+			if (bookshelf.getBook(i).getTitle() != null) {
 				title = bookshelf.getBook(i).getTitle();
+			} else {
+				title = bookshelf.getBook(i).getISBN();
 			}
 			HttpGet httpgetGoodreads;
 			try {
@@ -233,6 +246,51 @@ public class Main {
 		}
 	}
 
+	private static void readAmazonFromDataJSON(Bookshelf bookshelf) {
+		System.out.println("reading from data.json");
+        JSONParser jsonParser = new JSONParser();
+        
+        try (FileReader reader = new FileReader("data.json"))
+        {
+           Object obj = jsonParser.parse(reader);
+           
+            JSONArray amazonData = (JSONArray) obj;
+            System.out.println(amazonData);
+             
+            //Iterate over employee array
+            amazonData.forEach( emp -> parseAmazonData( (JSONObject) emp ) );
+    
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+    private static void parseAmazonData(JSONObject book)
+    {
+         
+        //Get employee first name
+        String isbn = (String) book.get("ASIN");   
+        System.out.println(isbn);
+         
+        //Get employee last name
+        int reviewCount = (int) book.get("REVIEW_COUNT"); 
+        System.out.println(reviewCount);
+         
+        //Get employee website name
+        String ratingString = (String) book.get("RATING");   
+        double rating = Double.parseDouble(ratingString.substring(0, ratingString.indexOf("o")));
+        System.out.println(rating);
+
+        String name = (String) book.get("NAME");   
+        System.out.println(name);
+    }
+    
 	private static void editFailedFiles() throws IOException {
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 		for (var i = 0; i < failedBooks.getNumberOfBooks(); i++) {

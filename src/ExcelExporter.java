@@ -17,7 +17,7 @@ public class ExcelExporter {
 		this.bookshelf = bookshelf;
 	}
 	public void export() throws IOException {
-		String[] headers =  {"Title", "Category", "GR Rating", "GR Review Count", "GR Adjusted Rating"/*, "Am Rating", "Am Review Count", "Am Adjusted Rating", "Overall Adjusted Rating"*/};
+		String[] headers =  {"Title", "Category", "GR Rating", "GR Review Count", "GR Adjusted Rating", "ISBN", /*, "Am Rating", "Am Review Count", "Am Adjusted Rating", "Overall Adjusted Rating"*/};
 		
 		//Blank workbook
 		Workbook wb = new HSSFWorkbook();
@@ -61,6 +61,7 @@ public class ExcelExporter {
         					book.getGoodreadsAverageRating(), 
         					bookshelf.getMeanGoodreadsVotes(),
         					bookshelf.getGoodreadsMinVotes()));
+        	row1.createCell(5).setCellValue(book.getISBN());
 //        	row.createCell(5).setCellValue(book.getAmazonAverageRating());
 //        	row.createCell(6).setCellValue(book.getAmazonRatingsCount());
 //        	row.createCell(7).setCellValue(
@@ -85,10 +86,10 @@ public class ExcelExporter {
     	  try
           {
               //Write the workbook in file system
-              FileOutputStream out = new FileOutputStream("BookRatings.xls");
+              FileOutputStream out = new FileOutputStream(bookshelf.getTitle() + ".xls");
               wb.write(out);
               out.close();
-              System.out.println("BookRatings.xlsx written successfully on disk.");
+              System.out.println(bookshelf.getTitle() + ".xlsx written successfully on disk.");
           }
           catch (Exception e)
           {
