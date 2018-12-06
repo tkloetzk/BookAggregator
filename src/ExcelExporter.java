@@ -17,7 +17,7 @@ public class ExcelExporter {
 		this.bookshelf = bookshelf;
 	}
 	public void export() throws IOException {
-		String[] headers =  {"Title", "Category", "GR Rating", "GR Review Count", "GR Adjusted Rating", "ISBN", /*, "Am Rating", "Am Review Count", "Am Adjusted Rating", "Overall Adjusted Rating"*/};
+		String[] headers =  {"Title", "Category", "GR Rating", "GR Review Count", "GR Adjusted Rating", "ISBN", "Am Rating", "Am Review Count", "Am Adjusted Rating", "Overall Adjusted Rating"};
 		
 		//Blank workbook
 		Workbook wb = new HSSFWorkbook();
@@ -33,12 +33,13 @@ public class ExcelExporter {
     		row.createCell(i).setCellValue(headers[i]);
     	}
 
+    	//Update
     	Collections.sort(bookshelf.getBooks(), new Comparator<Book>() {
     	    public int compare(Book v1, Book v2) {
     	        return getAjustedRating(
-    					v2.getGoodreadsRatingsCount(), 
-    					v2.getGoodreadsAverageRating(), 
-    					bookshelf.getMeanGoodreadsVotes(),
+    					(v2.getGoodreadsRatingsCount() + v2.getAmazonRatingsCount()) / 2, 
+    					v2.getGoodreadsAverageRating() + v2.getAmazonAverageRating(), 
+    					bookshelf.getMeanGoodreadsVotes() + bookshelf.getMeanAmazonVotes(),
     					bookshelf.getGoodreadsMinVotes()).compareTo(getAjustedRating(
             					v1.getGoodreadsRatingsCount(), 
             					v1.getGoodreadsAverageRating(), 
@@ -62,27 +63,25 @@ public class ExcelExporter {
         					bookshelf.getMeanGoodreadsVotes(),
         					bookshelf.getGoodreadsMinVotes()));
         	row1.createCell(5).setCellValue(book.getISBN());
-//        	row.createCell(5).setCellValue(book.getAmazonAverageRating());
-//        	row.createCell(6).setCellValue(book.getAmazonRatingsCount());
-//        	row.createCell(7).setCellValue(
-//        			getAjustedRating(
-//        					book.getAmazonRatingsCount(), 
-//        					book.getAmazonAverageRating(), 
-//        					bookshelf.getMeanAmazonVotes(),
-//        					bookshelf.getAmazonMinVotes()));
-//        	row.createCell(8).setCellValue(
-//        			getAjustedRating(
-//        					book.getTotalReviews(),
-//        					book.getTotalWeightedAverageRating(), // or regular average?
-//        					bookshelf.getTotalMean(),
-//        					bookshelf.getTotalMinVotes()
-//        					));
+        	row.createCell(6).setCellValue(book.getAmazonAverageRating());
+        	row.createCell(7).setCellValue(book.getAmazonRatingsCount());
+        	row.createCell(8).setCellValue(
+        			getAjustedRating(
+        					book.getAmazonRatingsCount(), 
+        					book.getAmazonAverageRating(), 
+        					bookshelf.getMeanAmazonVotes(),
+        					bookshelf.getAmazonMinVotes()));
+        	row.createCell(9).setCellValue(
+        			getAjustedRating(
+        					book.getTotalReviews(),
+        					book.getTotalWeightedAverageRating(), // or regular average?
+        					bookshelf.getTotalMean(),
+        					bookshelf.getTotalMinVotes()
+        					));
         	System.out.println(book.getTitle() + " has avg of " + book.getTotalAverageRating() + " with weight average of " + book.getTotalWeightedAverageRating());
 
     	}
-    	
-//        for (Book book: bookshelf) {
-//        }
+    
     	  try
           {
               //Write the workbook in file system

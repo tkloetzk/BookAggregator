@@ -49,20 +49,18 @@ public class Main {
 		System.out.println("Enter 1 for ISBN List or 2 for pdf directors.");
 		String answer = input.readLine();
 
-		//TODO: Save file as directory name
+		// TODO: Save file as directory name
 		if (String.valueOf(answer).equals("2")) {
 			isbnsFromList = false;
-			System.out.print("Base directory name: "); //Move this out since both could require base folder
+			System.out.print("Base directory name: "); // Move this out since both could require base folder
 			String base_folder = input.readLine();
 			title = base_folder;
-			files = Files.walk(Paths.get("/Users/Tucker/Documents/" +
-					base_folder), FileVisitOption.FOLLOW_LINKS)
+			files = Files.walk(Paths.get("/Users/Tucker/Documents/" + base_folder), FileVisitOption.FOLLOW_LINKS)
 					.filter(p -> (p.toString().endsWith(".pdf") || p.toString().endsWith(".epub")
 							|| p.toString().endsWith(".mobi")))
-					.map(fields ->
-					new Book(FilenameUtils.removeExtension(fields.getFileName().toString()),
-							fields.getParent().toString().substring(fields.getParent().toString().lastIndexOf('/')
-									+ 1).trim(),
+					.map(fields -> new Book(FilenameUtils.removeExtension(fields.getFileName().toString()),
+							fields.getParent().toString().substring(fields.getParent().toString().lastIndexOf('/') + 1)
+									.trim(),
 							FilenameUtils.getPath(fields.toAbsolutePath().toString()),
 							FilenameUtils.getExtension(fields.toAbsolutePath().toString())))
 					.collect(Collectors.toList());
@@ -75,12 +73,12 @@ public class Main {
 			String excelFilePath = "/Users/Tucker/Downloads/" + filename + ".xlsx";
 			FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
 			List<Book> listBooks = new ArrayList<>();
-	
+
 			Workbook workbook = new XSSFWorkbook(inputStream);
 			Sheet firstSheet = workbook.getSheetAt(0);
 			Iterator<Row> iterator = firstSheet.iterator();
 			files = new ArrayList<>();
-			
+
 			while (iterator.hasNext()) {
 				Row nextRow = iterator.next();
 				Iterator<Cell> cellIterator = nextRow.cellIterator();
@@ -88,7 +86,7 @@ public class Main {
 				while (cellIterator.hasNext()) {
 					Cell nextCell = cellIterator.next();
 					int columnIndex = nextCell.getColumnIndex();
-	
+
 					switch (columnIndex) {
 					case 0:
 						isbnBook.setISBN((String) getCellValue(nextCell));
@@ -108,10 +106,10 @@ public class Main {
 				}
 				if (!(isbnBook == null || (isbnBook.getTitle() == null && isbnBook.getISBN() == null))) {
 					files.add(isbnBook);
-				
+
 				}
 			}
-	
+
 			workbook.close();
 			inputStream.close();
 		}
@@ -125,9 +123,9 @@ public class Main {
 
 		bookshelf = new Bookshelf(files, title);
 
-		//createGoodreadsThreads(bookshelf);
+		createGoodreadsThreads(bookshelf);
 		readAmazonFromDataJSON(bookshelf);
-		//createAmazonThreads(bookshelf);
+		// createAmazonThreads(bookshelf);
 
 		if (failedBooks.getNumberOfBooks() > 0) {
 			// System.out.println(failedBooks.toString());
@@ -139,7 +137,7 @@ public class Main {
 				editFailedFiles();
 				createGoodreadsThreads(failedBooks);
 				readAmazonFromDataJSON(failedBooks);
-				//createAmazonThreads(failedBooks);
+				// createAmazonThreads(failedBooks);
 			}
 		}
 
@@ -148,15 +146,16 @@ public class Main {
 		for (var i = 0; i < bookshelf.getNumberOfBooks(); i++) {
 			// for (Book book: bookshelf) { // TODO Iterator
 			goodreadsVotes += bookshelf.getBook(i).getGoodreadsAverageRating();
-			//amazonVotes += bookshelf.getBook(i).getAmazonAverageRating();
-			//total += goodreadsVotes+amazonVotes;
-			total += goodreadsVotes;
+			amazonVotes += bookshelf.getBook(i).getAmazonAverageRating();
+			total += goodreadsVotes + amazonVotes;
+			// total += goodreadsVotes;
 		}
 
 		bookshelf.setMeanGoodreadsVotes(goodreadsVotes / bookshelf.getNumberOfBooks());
-		//bookshelf.setMeanAmazonVotes(amazonVotes/bookshelf.getNumberOfBooks());
-		//bookshelf.setTotalMean((total/2)/bookshelf.getNumberOfBooks());
+		bookshelf.setMeanAmazonVotes(amazonVotes / bookshelf.getNumberOfBooks());
+		// bookshelf.setTotalMean((total/2)/bookshelf.getNumberOfBooks());
 		bookshelf.setTotalMean((total) / bookshelf.getNumberOfBooks());
+		System.out.println(bookshelf.getTotalMean());
 
 		System.out.println(" ...Finished");
 
@@ -194,20 +193,40 @@ public class Main {
 	}
 
 	private static void createAmazonThreads(Bookshelf bookshelf) {
-		Thread[] threads = new Thread[bookshelf.getNumberOfBooks()];
 
-		for (int i = 0; i < threads.length; i++) {
-			threads[i] = new Thread(new GetAmazonTask(bookshelf.getBook(i)));
-			threads[i].start();
-		}
-		// wait for all the threads to finish
-		for (int i = 0; i < threads.length; i++) {
-			try {
-				threads[i].join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		System.out.println("reading from data.json");
+		JSONParser jsonParser = new JSONParser();
+
+		try (FileReader reader = new FileReader("data.json")) {
+			Object obj = jsonParser.parse(reader);
+
+			JSONArray amazonData = (JSONArray) obj;
+			System.out.println(amazonData);
+
+//			Thread[] threads = new Thread[amazonData.size()];
+			for (int i = 0; i < amazonData.size(); i++) {
+				parseAmazonData((JSONObject) amazonData.get(i));
+//				threads[i] = new Thread(new GetAmazonTask((JSONObject) amazonData.get(i)));
+//				threads[i].start();
 			}
+
+//			// wait for all the threads to finish
+//			for (int i = 0; i < threads.length; i++) {
+//				try {
+//					threads[i].join();
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//			}
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
 		}
+
 	}
 
 	private static void createGoodreadsThreads(Bookshelf bookshelf) {
@@ -248,19 +267,17 @@ public class Main {
 
 	private static void readAmazonFromDataJSON(Bookshelf bookshelf) {
 		System.out.println("reading from data.json");
-        JSONParser jsonParser = new JSONParser();
-        
-        try (FileReader reader = new FileReader("data.json"))
-        {
-           Object obj = jsonParser.parse(reader);
-           
-            JSONArray amazonData = (JSONArray) obj;
-            System.out.println(amazonData);
-             
-            //Iterate over employee array
-            amazonData.forEach( emp -> parseAmazonData( (JSONObject) emp ) );
-    
-			
+		JSONParser jsonParser = new JSONParser();
+
+		try (FileReader reader = new FileReader("data.json")) {
+			Object obj = jsonParser.parse(reader);
+
+			JSONArray amazonData = (JSONArray) obj;
+			System.out.println(amazonData);
+
+			// Iterate over employee array
+			amazonData.forEach(emp -> parseAmazonData((JSONObject) emp));
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -268,34 +285,38 @@ public class Main {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		
-	}
-	
-    private static void parseAmazonData(JSONObject book)
-    {
-         
-        //Get employee first name
-        String isbn = (String) book.get("ASIN");   
-        System.out.println(isbn);
-         
-        //Get employee last name
-        int reviewCount = (int) book.get("REVIEW_COUNT"); 
-        System.out.println(reviewCount);
-         
-        //Get employee website name
-        String ratingString = (String) book.get("RATING");   
-        double rating = Double.parseDouble(ratingString.substring(0, ratingString.indexOf("o")));
-        System.out.println(rating);
 
-        String name = (String) book.get("NAME");   
-        System.out.println(name);
-        
-       // Add to amazon bookshelf or find it right now?
-        //Create amazon book POJO, then update it
-        Book book = bookshelf.getBookByISBN(isbn);
-        
-    }
-    
+	}
+
+	private static void parseAmazonData(JSONObject book) {
+		List amazonData = new ArrayList<>();
+		// Get employee first name
+
+		// Get employee last name
+		String reviewCount = (String) book.get("REVIEW_COUNT");
+		amazonData.add(reviewCount);
+		System.out.println(reviewCount);
+
+		// Get employee website name
+		String ratingString = (String) book.get("RATING");
+		String rating = ratingString.substring(0, ratingString.indexOf("o")).trim();
+		amazonData.add(rating);
+		System.out.println(rating);
+
+		String name = (String) book.get("NAME");
+		amazonData.add(name);
+		System.out.println(name);
+
+		String isbn = (String) book.get("ASIN");
+		amazonData.add(isbn);
+		System.out.println(isbn);
+
+		// Add to amazon bookshelf or find it right now?
+		// Create amazon book POJO, then update it
+		bookshelf.getBookByISBN(isbn, amazonData);
+
+	}
+
 	private static void editFailedFiles() throws IOException {
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 		for (var i = 0; i < failedBooks.getNumberOfBooks(); i++) {

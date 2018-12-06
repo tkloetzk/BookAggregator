@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class Bookshelf {
 	private List<Book> books;
@@ -27,14 +28,14 @@ public class Bookshelf {
 		return books.get(index);
 	}
 	
-	public void getBookByISBN(String isbn, AmazonBook amazonBook) {
-		books.stream().map(book -> {
-			if (book.getISBN().equals(isbn)) {
-				book.setAmazonAverageRating(1);
-				book.setAmazonRatingsCount(1);
-				return book;
+	public void getBookByISBN(String isbn, List amazonData) {
+		IntStream.range(0,books.size()).forEach(i-> {
+			System.out.println(books.get(i).getISBN() + " " + isbn);
+			if (books.get(i).getISBN().equals(isbn)) {
+				books.get(i).setAmazonAverageRating(Double.parseDouble(amazonData.get(1).toString()));
+				books.get(i).setAmazonRatingsCount(Integer.parseInt(amazonData.get(0).toString()));
+				books.get(i).setTitle(amazonData.get(2).toString());
 			}
-			return book;
 		});
 	}
 	public void removeBook(Book book) {
