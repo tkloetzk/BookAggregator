@@ -142,19 +142,18 @@ public class Main {
 		}
 
 		// TODO Mean and min are off. Too big
-		int goodreadsVotes = 0, amazonVotes = 0, total = 0;
+		double goodreadsVotes = 0, amazonVotes = 0, total = 0;
 		for (var i = 0; i < bookshelf.getNumberOfBooks(); i++) {
 			// for (Book book: bookshelf) { // TODO Iterator
 			goodreadsVotes += bookshelf.getBook(i).getGoodreadsAverageRating();
 			amazonVotes += bookshelf.getBook(i).getAmazonAverageRating();
-			total += goodreadsVotes + amazonVotes;
+			total += bookshelf.getBook(i).getGoodreadsAverageRating() + bookshelf.getBook(i).getAmazonAverageRating();
 			// total += goodreadsVotes;
 		}
 
 		bookshelf.setMeanGoodreadsVotes(goodreadsVotes / bookshelf.getNumberOfBooks());
 		bookshelf.setMeanAmazonVotes(amazonVotes / bookshelf.getNumberOfBooks());
-		// bookshelf.setTotalMean((total/2)/bookshelf.getNumberOfBooks());
-		bookshelf.setTotalMean((total) / bookshelf.getNumberOfBooks());
+		bookshelf.setTotalMean((total/2)/bookshelf.getNumberOfBooks());
 		System.out.println(bookshelf.getTotalMean());
 
 		System.out.println(" ...Finished");

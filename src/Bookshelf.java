@@ -62,16 +62,16 @@ public class Bookshelf {
 		return mean_goodreads_votes;
 	}
 
-	public void setMeanGoodreadsVotes(int mean_goodreads_votes) {
-		this.mean_goodreads_votes = mean_goodreads_votes;
+	public void setMeanGoodreadsVotes(double d) {
+		this.mean_goodreads_votes = d;
 	}
 
 	public double getMeanAmazonVotes() {
 		return mean_amazon_votes;
 	}
 
-	public void setMeanAmazonVotes(int mean_amazon_votes) {
-		this.mean_amazon_votes = mean_amazon_votes;
+	public void setMeanAmazonVotes(double d) {
+		this.mean_amazon_votes = d;
 	}
 	
 	
@@ -108,13 +108,12 @@ public class Bookshelf {
 		return mean_total;
 	}
 	
-	public void setTotalMean(int mean) {
-		this.mean_total = mean;
+	public void setTotalMean(double d) {
+		this.mean_total = d;
 	}
 	
 	public double getTotalMinVotes() {
 		return trimmean(getTotalRatingsCountList());
-
 	}
 	public double getGoodreadsMinVotes() { // TODO When GR and Am run together, just add ratings when book is added
 		return trimmean(getGoodreadsRatingsCountList());

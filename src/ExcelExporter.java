@@ -37,44 +37,43 @@ public class ExcelExporter {
     	Collections.sort(bookshelf.getBooks(), new Comparator<Book>() {
     	    public int compare(Book v1, Book v2) {
     	        return getAjustedRating(
-    					(v2.getGoodreadsRatingsCount() + v2.getAmazonRatingsCount()) / 2, 
-    					v2.getGoodreadsAverageRating() + v2.getAmazonAverageRating(), 
-    					bookshelf.getMeanGoodreadsVotes() + bookshelf.getMeanAmazonVotes(),
-    					bookshelf.getGoodreadsMinVotes()).compareTo(getAjustedRating(
-            					v1.getGoodreadsRatingsCount(), 
-            					v1.getGoodreadsAverageRating(), 
-            					bookshelf.getMeanGoodreadsVotes(),
-            					bookshelf.getGoodreadsMinVotes()));
+    					v2.getTotalReviews(), 
+    					v2.getTotalAverageRating(), 
+    					bookshelf.getTotalMean(),
+    					bookshelf.getTotalMinVotes()).compareTo(getAjustedRating(
+            					v1.getTotalReviews(), 
+            					v1.getTotalAverageRating(), 
+            					bookshelf.getTotalMean(),
+            					bookshelf.getTotalMinVotes()));
     	    }
     	});
 
-    	
     	for (var i = 0; i < bookshelf.getNumberOfBooks(); i++) {
-    		Row row1 = sheet.createRow(rownum++);
+    		Row row1 = sheet.createRow(++rownum);
     		Book book = bookshelf.getBook(i);
-        	row1.createCell(0).setCellValue(book.getTitle());
-        	row1.createCell(1).setCellValue(book.getCategory());
-        	row1.createCell(2).setCellValue(book.getGoodreadsAverageRating());
-        	row1.createCell(3).setCellValue(book.getGoodreadsRatingsCount());
-        	row1.createCell(4).setCellValue(
+        	row1.createCell(0).setCellValue(book.getISBN());
+        	row1.createCell(1).setCellValue(book.getTitle());
+        	row1.createCell(2).setCellValue(book.getCategory());
+        	row1.createCell(3).setCellValue(book.getGoodreadsAverageRating());
+        	row1.createCell(4).setCellValue(book.getGoodreadsRatingsCount());
+        	row1.createCell(5).setCellValue(
         			getAjustedRating(
         					book.getGoodreadsRatingsCount(), 
         					book.getGoodreadsAverageRating(), 
         					bookshelf.getMeanGoodreadsVotes(),
         					bookshelf.getGoodreadsMinVotes()));
-        	row1.createCell(5).setCellValue(book.getISBN());
-        	row.createCell(6).setCellValue(book.getAmazonAverageRating());
-        	row.createCell(7).setCellValue(book.getAmazonRatingsCount());
-        	row.createCell(8).setCellValue(
+        	row1.createCell(6).setCellValue(book.getAmazonAverageRating());
+        	row1.createCell(7).setCellValue(book.getAmazonRatingsCount());
+        	row1.createCell(8).setCellValue(
         			getAjustedRating(
         					book.getAmazonRatingsCount(), 
         					book.getAmazonAverageRating(), 
         					bookshelf.getMeanAmazonVotes(),
         					bookshelf.getAmazonMinVotes()));
-        	row.createCell(9).setCellValue(
+        	row1.createCell(9).setCellValue(
         			getAjustedRating(
         					book.getTotalReviews(),
-        					book.getTotalWeightedAverageRating(), // or regular average?
+        					book.getTotalAverageRating(),
         					bookshelf.getTotalMean(),
         					bookshelf.getTotalMinVotes()
         					));
