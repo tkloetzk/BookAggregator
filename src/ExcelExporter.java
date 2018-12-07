@@ -17,7 +17,7 @@ public class ExcelExporter {
 		this.bookshelf = bookshelf;
 	}
 	public void export() throws IOException {
-		String[] headers =  {"Title", "Category", "GR Rating", "GR Review Count", "GR Adjusted Rating", "ISBN", "Am Rating", "Am Review Count", "Am Adjusted Rating", "Overall Adjusted Rating"};
+		String[] headers =  {"ISBN", "Title", "Category", "GR Rating", "GR Review Count", "GR Adjusted Rating", "Am Rating", "Am Review Count", "Am Adjusted Rating", "Overall Adjusted Rating", "Overall Average Rating"};
 		
 		//Blank workbook
 		Workbook wb = new HSSFWorkbook();
@@ -36,15 +36,33 @@ public class ExcelExporter {
     	//Update
     	Collections.sort(bookshelf.getBooks(), new Comparator<Book>() {
     	    public int compare(Book v1, Book v2) {
-    	        return getAjustedRating(
-    					v2.getTotalReviews(), 
-    					v2.getTotalAverageRating(), 
-    					bookshelf.getTotalMean(),
-    					bookshelf.getTotalMinVotes()).compareTo(getAjustedRating(
-            					v1.getTotalReviews(), 
-            					v1.getTotalAverageRating(), 
-            					bookshelf.getTotalMean(),
-            					bookshelf.getTotalMinVotes()));
+    	    	return Double.compare((getAjustedRating(
+    					v2.getGoodreadsRatingsCount(), 
+    					v2.getGoodreadsAverageRating(), 
+    					bookshelf.getMeanGoodreadsVotes(),
+    					bookshelf.getGoodreadsMinVotes()) + getAjustedRating(
+            					v2.getAmazonRatingsCount(), 
+            					v2.getAmazonAverageRating(), 
+            					bookshelf.getMeanAmazonVotes(),
+            					bookshelf.getAmazonMinVotes())), (getAjustedRating(
+            	    					v1.getGoodreadsRatingsCount(), 
+            	    					v1.getGoodreadsAverageRating(), 
+            	    					bookshelf.getMeanGoodreadsVotes(),
+            	    					bookshelf.getGoodreadsMinVotes()) + getAjustedRating(
+            	            					v1.getAmazonRatingsCount(), 
+            	            					v1.getAmazonAverageRating(), 
+            	            					bookshelf.getMeanAmazonVotes(),
+            	            					bookshelf.getAmazonMinVotes())));
+    	    	
+    	    	//    	        return getAjustedRating(
+//    					v2.getTotalReviews(), 
+//    					v2.getTotalAverageRating(), 
+//    					bookshelf.getTotalMean(),
+//    					bookshelf.getTotalMinVotes()).compareTo(getAjustedRating(
+//            					v1.getTotalReviews(), 
+//            					v1.getTotalAverageRating(), 
+//            					bookshelf.getTotalMean(),
+//            					bookshelf.getTotalMinVotes()));
     	    }
     	});
 
@@ -77,6 +95,15 @@ public class ExcelExporter {
         					bookshelf.getTotalMean(),
         					bookshelf.getTotalMinVotes()
         					));
+        	row1.createCell(10).setCellValue((getAjustedRating(
+					book.getGoodreadsRatingsCount(), 
+					book.getGoodreadsAverageRating(), 
+					bookshelf.getMeanGoodreadsVotes(),
+					bookshelf.getGoodreadsMinVotes()) + getAjustedRating(
+        					book.getAmazonRatingsCount(), 
+        					book.getAmazonAverageRating(), 
+        					bookshelf.getMeanAmazonVotes(),
+        					bookshelf.getAmazonMinVotes())) / 2);
         	System.out.println(book.getTitle() + " has avg of " + book.getTotalAverageRating() + " with weight average of " + book.getTotalWeightedAverageRating());
 
     	}

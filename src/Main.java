@@ -11,11 +11,14 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
@@ -288,31 +291,17 @@ public class Main {
 	}
 
 	private static void parseAmazonData(JSONObject book) {
-		List amazonData = new ArrayList<>();
-		// Get employee first name
+		Map<String, Object> amazonData = new HashMap<String, Object>();
+		
+		int reviews = NumberUtils.toInt(book.get("reviews").toString().replaceAll(",", ""), 0);		
+		double rating = NumberUtils.toDouble(book.get("rating").toString().replaceAll(",", ""), 0);
 
-		// Get employee last name
-		String reviewCount = (String) book.get("REVIEW_COUNT");
-		amazonData.add(reviewCount);
-		System.out.println(reviewCount);
+		amazonData.put("rating", rating);
+		amazonData.put("reviews", reviews);
+		amazonData.put("name", book.get("name").toString());
+		amazonData.put("isbn", book.get("isbn").toString());
 
-		// Get employee website name
-		String ratingString = (String) book.get("RATING");
-		String rating = ratingString.substring(0, ratingString.indexOf("o")).trim();
-		amazonData.add(rating);
-		System.out.println(rating);
-
-		String name = (String) book.get("NAME");
-		amazonData.add(name);
-		System.out.println(name);
-
-		String isbn = (String) book.get("ASIN");
-		amazonData.add(isbn);
-		System.out.println(isbn);
-
-		// Add to amazon bookshelf or find it right now?
-		// Create amazon book POJO, then update it
-		bookshelf.getBookByISBN(isbn, amazonData);
+		bookshelf.getBookByISBN(amazonData);
 
 	}
 
